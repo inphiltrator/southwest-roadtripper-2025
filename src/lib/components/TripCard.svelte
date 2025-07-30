@@ -39,7 +39,7 @@
 </script>
 
 <GlassCard class="cursor-pointer overflow-hidden transition-transform hover:scale-105 {className}">
-	<div class="p-6" onclick={() => onSelect?.(trip)}>
+	<div class="p-6" onclick={() => onSelect?.(trip)} onkeydown={() => {}} role="button" tabindex="0">
 		<!-- Trip Header -->
 		<div class="mb-4 flex items-start justify-between">
 			<div>

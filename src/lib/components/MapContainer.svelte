@@ -22,7 +22,7 @@
 	let L: typeof import('leaflet') | null = null;
 
 	// Southwest bounds: CA/NV/UT/AZ
-	const southwestBounds = [
+	const southwestBounds: [[number, number], [number, number]] = [
 		[31.0, -125.0], // Southwest corner (Baja California border)
 		[42.0, -103.0] // Northeast corner (Colorado border)
 	];
@@ -59,6 +59,7 @@
 				];
 
 				waypoints.forEach((waypoint) => {
+					if (!L || !map) return;
 					const marker = new L.Marker([waypoint.lat, waypoint.lng]);
 
 					// Create popup with Southwest styling
@@ -84,6 +85,7 @@
 
 				// Add click handler for adding custom waypoints
 				map.on('click', (e: L.LeafletMouseEvent) => {
+					if (!L || !map) return;
 					const customMarker = new L.Marker([e.latlng.lat, e.latlng.lng]);
 
 					const customPopup = `

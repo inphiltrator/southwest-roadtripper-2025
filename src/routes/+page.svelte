@@ -54,6 +54,7 @@
 	function getCategoryIcon(category: POI['category']): string {
 		const icons = {
 			national_park: '🏜️',
+			state_park: '🏞️',
 			camping: '🏕️',
 			dining: '🍽️',
 			attraction: '📍',
@@ -81,7 +82,7 @@
 				<GlassCard class="mt-8 p-4">
 					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">Discover Southwest POIs</h3>
 					<div class="mb-4 flex gap-2">
-						{#each ['national_park', 'camping', 'dining', 'attraction', 'lodging', 'fuel'] as category (category)}
+						{#each ['national_park', 'camping', 'dining', 'attraction', 'lodging', 'fuel'] as POI['category'][] as category (category)}
 							<GlassButton
 								variant={selectedPOICategory === category ? 'primary' : 'secondary'}
 								size="sm"

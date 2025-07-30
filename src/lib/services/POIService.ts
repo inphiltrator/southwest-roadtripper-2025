@@ -98,6 +98,7 @@ export class POIService {
 	private getMockPOIName(category: POI['category'], index: number): string {
 		const names = {
 			national_park: ['Red Rock Canyon', 'Valley of Fire', 'Death Valley'],
+			state_park: ['Antelope Canyon', 'Goblin Valley', 'Valley of the Gods'],
 			camping: ['Desert Oasis Campground', 'Starlight Mesa', 'Cactus Flats RV Park'],
 			dining: ['Southwest Grill', 'Route 66 Diner', 'Canyon Coffee House'],
 			attraction: ['Hoover Dam', 'Area 51 Gateway', 'Meteor Crater'],

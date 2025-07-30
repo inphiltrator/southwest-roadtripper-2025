@@ -20,8 +20,8 @@
 
 	let { waypoints = [], class: className = '', onRemove, onReorder, onClear }: Props = $props();
 
-	let isDragging = false;
-	let dragStartIndex = -1;
+	let isDragging = $state(false);
+	let dragStartIndex = $state(-1);
 
 	function handleDragStart(index: number) {
 		isDragging = true;
