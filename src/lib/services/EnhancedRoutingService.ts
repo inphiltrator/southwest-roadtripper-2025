@@ -277,7 +277,7 @@ export class EnhancedRoutingService {
 
 	private generateMockPolyline(waypoints: Waypoint[]): string {
 		// Encode mock polyline to match real API format
-		const coords = waypoints.map((wp) => [wp.lat, wp.lng]);
+		const coords: [number, number][] = waypoints.map((wp) => [wp.lat, wp.lng] as [number, number]);
 		return polyline.encode(coords);
 	}
 
