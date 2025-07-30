@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-southwest-sunset: #FF6B35;
+  --color-southwest-sage: #9CAF88;
+  --color-southwest-canyon: #CD853F;
+  --color-southwest-sky: #87CEEB;
+  --color-southwest-sand: #F4E4C1;
+
+  --backdrop-blur-glass: 12px;
+}
