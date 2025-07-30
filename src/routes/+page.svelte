@@ -6,32 +6,22 @@
 		GlassCard,
 		GlassButton
 	} from '$lib/components';
-	import { POIService } from '$lib/services';
 	import { useTripStore } from '$lib/stores/tripStore';
+	import { poiStore, discoveredPOIs, poiLoading } from '$lib/stores/poiStore';
 	import type { Waypoint, POI } from '$lib/types';
 
 	const tripStore = useTripStore();
-	const poiService = new POIService();
 
-	let pois: POI[] = $state([]);
-	let isLoadingPOIs = $state(false);
+	// Use reactive stores
 	let selectedPOICategory = $state<POI['category']>('national_park');
 
-	// Load initial POIs around Las Vegas
+	// Load initial POIs around Las Vegas using the POI store
 	async function loadPOIsAroundLocation(lat: number, lng: number) {
-		isLoadingPOIs = true;
-		try {
-			const discoveredPOIs = await poiService.discoverPOIs(
-				{ lat, lng },
-				5000, // 5km radius
-				[selectedPOICategory]
-			);
-			pois = discoveredPOIs;
-		} catch (error) {
-			console.error('Failed to load POIs:', error);
-		} finally {
-			isLoadingPOIs = false;
-		}
+		await poiStore.discoverPOIs(
+			{ lat, lng },
+			10000, // 10km radius for better coverage
+			[selectedPOICategory]
+		);
 	}
 
 	// Load POIs on component mount
@@ -94,11 +84,11 @@
 						{/each}
 					</div>
 
-					{#if isLoadingPOIs}
+					{#if $poiLoading}
 						<div class="py-4 text-center text-gray-500">Loading POIs...</div>
 					{:else}
 						<ul class="h-64 space-y-2 overflow-y-auto">
-							{#each pois as poi (poi.id)}
+							{#each $discoveredPOIs as poi (poi.id)}
 								<li
 									class="flex items-center rounded-lg bg-white/50 p-2 transition hover:bg-white/70"
 								>
