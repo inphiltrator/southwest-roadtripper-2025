@@ -29,7 +29,7 @@ export function useTripStore() {
 	// Check if we're in a Svelte component context
 	let trip: Trip;
 	let isLoading: boolean;
-	
+
 	try {
 		// Try to use $state if available (in Svelte context)
 		trip = $state(createNewTrip());
@@ -39,7 +39,7 @@ export function useTripStore() {
 		trip = createNewTrip();
 		isLoading = false;
 	}
-	
+
 	const costFactors = costCalculatorService.getSouthwestCostFactors();
 
 	// Subscribe to store changes
