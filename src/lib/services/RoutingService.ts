@@ -2,16 +2,22 @@ import type { Waypoint, Route, RouteResponse } from '../types';
 
 /**
  * Service for routing calculations using OpenRouteService API
- * Optimized for Southwest USA travel
+ * Optimized for Southwest USA travel with robust error handling
  */
 export class RoutingService {
 	private readonly apiKey: string;
 	private readonly baseUrl = 'https://api.openrouteservice.org/v2';
+	private readonly rateLimitDelay = 1000; // 1 second between requests
+	private lastRequestTime = 0;
 
 	constructor(apiKey?: string) {
-		// For demo purposes, we'll use a mock implementation
-		// In production, you would pass a real OpenRouteService API key
-		this.apiKey = apiKey || 'demo-key';
+		// Support environment variable or explicit key
+		this.apiKey = apiKey || process.env.ORS_API_KEY || 'demo-key';
+		if (this.apiKey !== 'demo-key') {
+			console.log('🛣️  OpenRouteService configured with API key');
+		} else {
+			console.log('🛣️  OpenRouteService using mock mode (demo-key)');
+		}
 	}
 
 	/**
