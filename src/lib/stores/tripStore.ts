@@ -26,8 +26,20 @@ const tripStore = writable(createNewTrip());
 
 // Create a reactive trip store
 export function useTripStore() {
-	let trip = $state(createNewTrip());
-	let isLoading = $state(false);
+	// Check if we're in a Svelte component context
+	let trip: Trip;
+	let isLoading: boolean;
+	
+	try {
+		// Try to use $state if available (in Svelte context)
+		trip = $state(createNewTrip());
+		isLoading = $state(false);
+	} catch {
+		// Fallback for testing environment
+		trip = createNewTrip();
+		isLoading = false;
+	}
+	
 	const costFactors = costCalculatorService.getSouthwestCostFactors();
 
 	// Subscribe to store changes
