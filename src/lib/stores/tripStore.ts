@@ -1,4 +1,4 @@
-import { persisted } from 'svelte-local-storage-store';
+import { writable } from 'svelte/store';
 import type { Trip, Waypoint, Route, CostFactors } from '$lib/types';
 import { RoutingService, CostCalculatorService } from '$lib/services';
 
@@ -21,17 +21,17 @@ const createNewTrip = (): Trip => ({
   updatedAt: new Date(),
 });
 
-// Persisted state for the current trip
-export const currentTrip = persisted('vronis-roadtripper-trip', createNewTrip());
+// Simple trip store for now (localStorage integration can be added later)
+const tripStore = writable(createNewTrip());
 
-// Derived state and actions for managing the trip
+// Create a reactive trip store
 export function useTripStore() {
-  let trip = $state(currentTrip.get());
-  let costFactors = $state(costCalculatorService.getSouthwestCostFactors());
+  let trip = $state(createNewTrip());
   let isLoading = $state(false);
+  const costFactors = costCalculatorService.getSouthwestCostFactors();
 
-  // Sync local state with persisted store
-  currentTrip.subscribe(value => {
+  // Subscribe to store changes
+  tripStore.subscribe(value => {
     trip = value;
   });
 
@@ -54,27 +54,46 @@ export function useTripStore() {
   }
 
   async function recalculateRoute(waypoints: Waypoint[]) {
+    if (waypoints.length < 2) {
+      // Update trip with new waypoints but no route calculation
+      const updatedTrip = {
+        ...trip,
+        route: {
+          ...trip.route,
+          waypoints,
+          distance: 0,
+          duration: 0
+        },
+        estimatedCost: 0,
+        updatedAt: new Date()
+      };
+      tripStore.set(updatedTrip);
+      return;
+    }
+
     isLoading = true;
     try {
       const route = await routingService.calculateRoute(waypoints);
       const newTrip = { ...trip, route };
       const estimatedCost = costCalculatorService.calculateTripCost(newTrip, costFactors);
-      currentTrip.set({ ...newTrip, estimatedCost, updatedAt: new Date() });
+      const updatedTrip = { ...newTrip, estimatedCost, updatedAt: new Date() };
+      tripStore.set(updatedTrip);
     } catch (error) {
       console.error('Failed to recalculate route:', error);
-      // Optionally, show an error to the user
+      // Update with waypoints but keep old route data
+      const updatedTrip = {
+        ...trip,
+        route: { ...trip.route, waypoints },
+        updatedAt: new Date()
+      };
+      tripStore.set(updatedTrip);
     } finally {
       isLoading = false;
     }
   }
 
   function updateTripDetails(details: { name?: string; description?: string }) {
-    currentTrip.update(t => ({ ...t, ...details, updatedAt: new Date() }));
-  }
-
-  function updateCostFactors(factors: Partial<CostFactors>) {
-    costFactors = { ...costFactors, ...factors };
-    recalculateRoute(trip.route.waypoints); // Recalculate cost after factors change
+    tripStore.update(t => ({ ...t, ...details, updatedAt: new Date() }));
   }
 
   return {
@@ -86,7 +105,6 @@ export function useTripStore() {
     reorderWaypoints,
     clearWaypoints,
     updateTripDetails,
-    updateCostFactors,
   };
 }
 
