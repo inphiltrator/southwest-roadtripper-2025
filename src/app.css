@@ -3,11 +3,11 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-  --color-southwest-sunset: #FF6B35;
-  --color-southwest-sage: #9CAF88;
-  --color-southwest-canyon: #CD853F;
-  --color-southwest-sky: #87CEEB;
-  --color-southwest-sand: #F4E4C1;
+	--color-southwest-sunset: #ff6b35;
+	--color-southwest-sage: #9caf88;
+	--color-southwest-canyon: #cd853f;
+	--color-southwest-sky: #87ceeb;
+	--color-southwest-sand: #f4e4c1;
 
-  --backdrop-blur-glass: 12px;
+	--backdrop-blur-glass: 12px;
 }

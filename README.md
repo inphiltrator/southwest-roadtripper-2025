@@ -13,12 +13,14 @@ A production-ready roadtrip planning application for the American Southwest (Cal
 ## ✨ Features
 
 ### 🗺️ Interactive Southwest Map
+
 - **Leaflet.js** powered interactive maps centered on Las Vegas
 - **Click-to-add waypoints** with Southwest-themed markers 🌵
 - **Southwest bounds** restricted to CA/NV/UT/AZ region
 - **Mobile-responsive** touch controls
 
 ### 🛣️ Route Planning
+
 - **OpenRouteService integration** for precise routing
 - **Drag & drop waypoint reordering**
 - **Real-time distance and duration calculation**
@@ -26,18 +28,21 @@ A production-ready roadtrip planning application for the American Southwest (Cal
 - **Southwest-optimized** travel estimates (~50 mph average)
 
 ### 📍 POI Discovery
+
 - **Overpass API integration** for Points of Interest
 - **Southwest-specific categories**: National Parks, Camping, Dining, Attractions
 - **Location-based discovery** with customizable radius
 - **State-specific top-rated locations**
 
 ### 💰 Cost Calculator
+
 - **Southwest-specific pricing** for fuel, lodging, meals
 - **Real-time cost updates** as route changes
 - **Customizable cost factors** for different travel styles
 - **Detailed cost breakdown** by category
 
 ### 💾 Trip Management
+
 - **localStorage persistence** with automatic saving
 - **Import/Export** functionality (planned)
 - **Trip history** and favorites
@@ -46,21 +51,24 @@ A production-ready roadtrip planning application for the American Southwest (Cal
 ## 🎨 Design System
 
 ### Apple Liquid Glass UI
+
 - **Backdrop blur effects** with CSS `backdrop-filter`
 - **Glass card components** with subtle transparency
 - **Smooth animations** and hover effects
 - **Touch-optimized** interface elements
 
 ### Southwest Color Palette
+
 ```css
---color-southwest-sunset: #FF6B35;  /* Vibrant orange */
---color-southwest-sage: #9CAF88;    /* Desert sage green */
---color-southwest-canyon: #CD853F;  /* Canyon brown */
---color-southwest-sky: #87CEEB;     /* Sky blue */
---color-southwest-sand: #F4E4C1;    /* Desert sand */
+--color-southwest-sunset: #ff6b35; /* Vibrant orange */
+--color-southwest-sage: #9caf88; /* Desert sage green */
+--color-southwest-canyon: #cd853f; /* Canyon brown */
+--color-southwest-sky: #87ceeb; /* Sky blue */
+--color-southwest-sand: #f4e4c1; /* Desert sand */
 ```
 
 ### Typography
+
 - **Inter font family** for clean, modern text
 - **Responsive sizing** with Tailwind CSS utilities
 - **High contrast** for desert sun readability
@@ -68,29 +76,34 @@ A production-ready roadtrip planning application for the American Southwest (Cal
 ## 🚀 Tech Stack
 
 ### Framework & Language
+
 - **SvelteKit 2.x** - Full-stack web framework
 - **Svelte 5** - Component framework with Runes
 - **TypeScript** - Type-safe development
 - **Vite** - Fast build tool and dev server
 
 ### Styling & UI
+
 - **Tailwind CSS 4.x** - Utility-first CSS framework
 - **Custom Glass Components** - Apple-inspired UI elements
 - **CSS Grid & Flexbox** - Modern layout systems
 - **Responsive Design** - Mobile-first approach
 
 ### Mapping & APIs
+
 - **Leaflet.js** - Interactive mapping library
 - **OpenRouteService** - Routing and directions API
 - **Overpass API** - POI and geographic data
 - **SSR-safe imports** - Dynamic loading for browser-only code
 
 ### State Management
+
 - **Svelte Stores** - Reactive state management
 - **localStorage integration** - Persistent trip data
 - **TypeScript interfaces** - Type-safe data structures
 
 ### Testing & Quality
+
 - **Vitest** - Unit and integration testing
 - **Playwright** - E2E testing
 - **ESLint & Prettier** - Code formatting and linting
@@ -126,6 +139,7 @@ src/
 ## 🛠️ Development
 
 ### Prerequisites
+
 - **Node.js 20+** (recommended)
 - **npm** or **yarn**
 - **Modern browser** with ES2022 support
@@ -175,18 +189,21 @@ OVERPASS_API_URL=https://overpass-api.de/api/interpreter
 ## 🌍 API Integration
 
 ### OpenRouteService
+
 - **Free tier**: 1000 requests/day
 - **Features**: Routing, isochrones, matrix
 - **Fallback**: Mock routing with Haversine distance calculation
 
 ### Overpass API
+
 - **Free**: Unlimited requests with rate limiting
 - **Features**: POI discovery, geographic data
 - **Fallback**: Curated Southwest POI database
 
 ## 📱 Progressive Web App
 
-*Planned features:*
+_Planned features:_
+
 - **Offline support** with service workers
 - **Install prompt** for mobile devices
 - **Push notifications** for trip reminders
@@ -251,6 +268,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🌟 Roadmap
 
 ### Phase 1: Core Features ✅
+
 - [x] Interactive Leaflet map
 - [x] Southwest theme implementation
 - [x] Waypoint management
@@ -258,6 +276,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [x] Cost estimation
 
 ### Phase 2: Enhanced UX
+
 - [ ] Real-time traffic data
 - [ ] Weather integration
 - [ ] Photo galleries for POIs
@@ -265,6 +284,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [ ] Social sharing features
 
 ### Phase 3: Advanced Features
+
 - [ ] Multi-day itinerary planning
 - [ ] Camping reservation integration
 - [ ] Gas price tracking
@@ -272,6 +292,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [ ] Voice navigation
 
 ### Phase 4: Community
+
 - [ ] User accounts and profiles
 - [ ] Trip sharing community
 - [ ] Route recommendations
@@ -288,6 +309,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-*Built with ❤️ by the Southwest App Builder Agent for endless desert highways and unforgettable adventures*
+_Built with ❤️ by the Southwest App Builder Agent for endless desert highways and unforgettable adventures_
 
 **Happy Trails!** 🚗💨🌵
