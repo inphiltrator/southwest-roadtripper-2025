@@ -1,17 +1,26 @@
-import type { LatLng, POI, SouthwestState } from '../types';
+interface OverpassElement {
+	id: number;
+	lat: number;
+	lon: number;
+	tags: Record<string, string>;
+}
+
+import type { LatLng, POI } from '../types';
 
 /**
  * Enhanced POI discovery service using Overpass API
  * Specialized for Southwest USA with robust error handling
  */
-	export class EnhancedPOIService {
+export class EnhancedPOIService {
 	private readonly baseUrl = 'https://overpass.private.coffee/api/interpreter';
 	private readonly rateLimitDelay = 500; // Minimal delay to be respectful
 	private lastRequestTime = 0;
 	private readonly maxRetries = 3;
 
 	constructor() {
-		console.log('🏞️ Overpass API POI Service initialized with private.coffee endpoint (unlimited access)');
+		console.log(
+			'🏞️ Overpass API POI Service initialized with private.coffee endpoint (unlimited access)'
+		);
 	}
 
 	/**
@@ -77,7 +86,7 @@ import type { LatLng, POI, SouthwestState } from '../types';
 	private buildOverpassQuery(
 		location: LatLng,
 		radius: number,
-		categories: POI['category'][]
+		_categories: POI['category'][]
 	): string {
 		// Build a simple query for restaurants (as a basic test)
 		return `[out:json][timeout:25];
@@ -91,8 +100,8 @@ out body;`;
 	/**
 	 * Transform Overpass API response to our POI format
 	 */
-	private transformOverpassResponse(data: any): POI[] {
-		return data.elements.map((element: any) => ({
+	private transformOverpassResponse(data: { elements: OverpassElement[] }): POI[] {
+		return data.elements.map((element: OverpassElement) => ({
 			id: element.id.toString(),
 			name: element.tags?.name || 'Unnamed POI',
 			lat: element.lat,
@@ -107,7 +116,7 @@ out body;`;
 	/**
 	 * Map Overpass tags to our POI categories
 	 */
-	private mapOverpassCategory(tags: any): POI['category'] {
+	private mapOverpassCategory(tags: Record<string, string>): POI['category'] {
 		if (tags.leisure === 'park') return 'national_park';
 		if (tags.tourism === 'camp_site') return 'camping';
 		if (tags.amenity === 'restaurant' || tags.amenity === 'cafe') return 'dining';
@@ -162,7 +171,6 @@ out body;`;
 	 * Sleep utility for rate limiting
 	 */
 	private sleep(ms: number): Promise<void> {
-		return new Promise(resolve => setTimeout(resolve, ms));
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 }
-

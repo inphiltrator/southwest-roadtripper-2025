@@ -1,5 +1,5 @@
 import polyline from '@mapbox/polyline';
-import type { Waypoint, Route, RouteResponse } from '../types';
+import type { Waypoint, Route } from '../types';
 
 /**
  * Enhanced routing service using OpenRouteService API
@@ -14,7 +14,8 @@ export class EnhancedRoutingService {
 
 	constructor(apiKey?: string) {
 		// Support environment variable or explicit key
-		this.apiKey = apiKey || (typeof process !== 'undefined' && process.env.ORS_API_KEY) || 'demo-key';
+		this.apiKey =
+			apiKey || (typeof process !== 'undefined' && process.env.ORS_API_KEY) || 'demo-key';
 		if (this.apiKey !== 'demo-key') {
 			console.log('🛣️ OpenRouteService configured with API key');
 		} else {
@@ -73,8 +74,9 @@ export class EnhancedRoutingService {
 		const response = await fetch(`${this.baseUrl}/directions/driving-car`, {
 			method: 'POST',
 			headers: {
-				'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-				'Authorization': this.apiKey,
+				Accept:
+					'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+				Authorization: this.apiKey,
 				'Content-Type': 'application/json; charset=utf-8'
 			},
 			body: JSON.stringify(requestBody)
@@ -128,7 +130,10 @@ export class EnhancedRoutingService {
 
 		// If we don't have enough alternatives, add variations
 		if (alternatives.length < maxAlternatives) {
-			const mockAlternatives = this.getMockAlternatives(waypoints, maxAlternatives - alternatives.length);
+			const mockAlternatives = this.getMockAlternatives(
+				waypoints,
+				maxAlternatives - alternatives.length
+			);
 			alternatives.push(...mockAlternatives);
 		}
 
@@ -138,14 +143,17 @@ export class EnhancedRoutingService {
 	/**
 	 * Make routing request with specific profile
 	 */
-	private async makeRoutingRequestWithProfile(waypoints: Waypoint[], profile: string): Promise<Route> {
+	private async makeRoutingRequestWithProfile(
+		waypoints: Waypoint[],
+		profile: string
+	): Promise<Route> {
 		const coordinates = waypoints.map((wp) => [wp.lng, wp.lat]);
-		
+
 		const response = await fetch(`${this.baseUrl}/directions/${profile}`, {
 			method: 'POST',
 			headers: {
-				'Accept': 'application/json',
-				'Authorization': this.apiKey,
+				Accept: 'application/json',
+				Authorization: this.apiKey,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
@@ -182,11 +190,12 @@ export class EnhancedRoutingService {
 			west: -124.4
 		};
 
-		return waypoints.every(wp => 
-			wp.lat >= southwestBounds.south &&
-			wp.lat <= southwestBounds.north &&
-			wp.lng >= southwestBounds.west &&
-			wp.lng <= southwestBounds.east
+		return waypoints.every(
+			(wp) =>
+				wp.lat >= southwestBounds.south &&
+				wp.lat <= southwestBounds.north &&
+				wp.lng >= southwestBounds.west &&
+				wp.lng <= southwestBounds.east
 		);
 	}
 
@@ -266,7 +275,6 @@ export class EnhancedRoutingService {
 		return `route_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 	}
 
-
 	private generateMockPolyline(waypoints: Waypoint[]): string {
 		// Encode mock polyline to match real API format
 		const coords = waypoints.map((wp) => [wp.lat, wp.lng]);
@@ -285,6 +293,6 @@ export class EnhancedRoutingService {
 	 * Sleep utility for rate limiting
 	 */
 	private sleep(ms: number): Promise<void> {
-		return new Promise(resolve => setTimeout(resolve, ms));
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 }
