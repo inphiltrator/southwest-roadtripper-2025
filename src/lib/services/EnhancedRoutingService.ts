@@ -15,12 +15,8 @@ export class EnhancedRoutingService {
 
 	constructor(apiKey?: string) {
 		// Use environment config for API key
-		this.apiKey = apiKey || env.openRouteServiceApiKey || 'demo-key';
-		if (this.apiKey !== 'demo-key') {
-			console.log('🛣️ OpenRouteService configured with API key');
-		} else {
-			console.log('🛣️ OpenRouteService using mock mode (demo-key)');
-		}
+		this.apiKey = apiKey || env.openRouteServiceApiKey;
+		console.log('🛣️ OpenRouteService configured with API key');
 	}
 
 	/**
@@ -31,10 +27,6 @@ export class EnhancedRoutingService {
 			throw new Error('At least 2 waypoints are required for routing');
 		}
 
-		// Use mock for demo or if no API key
-		if (this.apiKey === 'demo-key') {
-			return this.mockRouteCalculation(waypoints);
-		}
 
 		try {
 			return await this.makeRoutingRequest(waypoints);
@@ -112,9 +104,6 @@ export class EnhancedRoutingService {
 	 * Get route alternatives with Southwest-specific profiles
 	 */
 	async getRouteAlternatives(waypoints: Waypoint[], maxAlternatives = 3): Promise<Route[]> {
-		if (this.apiKey === 'demo-key') {
-			return this.getMockAlternatives(waypoints, maxAlternatives);
-		}
 
 		const profiles = ['driving-car', 'driving-hgv']; // Car and truck routes
 		const alternatives: Route[] = [];

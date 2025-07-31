@@ -1,44 +1,58 @@
 <script lang="ts">
 	import type { POI } from '$lib/types';
+	import GlassCard from './GlassCard.svelte';
+	import GlassButton from './GlassButton.svelte';
 
 	interface Props {
-		onChange?: (data: { categories: POI['category'][]; radius: number }) => void;
+		selectedCategories: POI['category'][];
+		onCategoryToggle: (category: POI['category']) => void;
+		onApplyFilters: () => void;
+		radius: number;
+		onRadiusChange: (radius: number) => void;
+		loading?: boolean;
 	}
 
-	let { onChange }: Props = $props();
+	let { 
+		selectedCategories = [], 
+		onCategoryToggle, 
+		onApplyFilters,
+		radius = 10000,
+		onRadiusChange,
+		loading = false
+	}: Props = $props();
 
-	let selectedCategories = $state<POI['category'][]>([
-		'national_park',
-		'camping',
-		'dining',
-		'attraction'
-	]);
-	let radius = $state(10000);
+	const categories: { value: POI['category']; label: string; icon: string; description: string }[] = [
+		{ value: 'national_park', label: 'National Parks', icon: '🏜️', description: 'Grand Canyon, Zion, etc.' },
+		{ value: 'state_park', label: 'State Parks', icon: '🏞️', description: 'Valley of Fire, Red Rock' },
+		{ value: 'camping', label: 'Camping', icon: '🏕️', description: 'Campgrounds, RV Parks' },
+		{ value: 'dining', label: 'Dining', icon: '🍽️', description: 'Restaurants, Cafes' },
+		{ value: 'attraction', label: 'Attractions', icon: '📍', description: 'Viewpoints, Museums' },
+		{ value: 'lodging', label: 'Lodging', icon: '🏨', description: 'Hotels, Motels' },
+		{ value: 'fuel', label: 'Fuel & Charging', icon: '⛽', description: 'Gas, EV Charging' }
+	];
 
-	function handleCategoryChange(event: Event) {
-		const target = event.target as HTMLSelectElement;
-		selectedCategories = Array.from(target.selectedOptions).map(
-			(option) => option.value as POI['category']
-		);
-		if (onChange) {
-			onChange({ categories: selectedCategories, radius });
+	const radiusOptions = [
+		{ value: 5000, label: '5 km', miles: '3 mi' },
+		{ value: 10000, label: '10 km', miles: '6 mi' },
+		{ value: 25000, label: '25 km', miles: '15 mi' },
+		{ value: 50000, label: '50 km', miles: '31 mi' }
+	];
+
+	function toggleAll(select: boolean) {
+		if (select) {
+			categories.forEach(c => {
+				if (!selectedCategories.includes(c.value)) {
+					onCategoryToggle(c.value);
+				}
+			});
+		} else {
+			categories.forEach(c => {
+				if (selectedCategories.includes(c.value)) {
+					onCategoryToggle(c.value);
+				}
+			});
 		}
 	}
-
-	function handleRadiusChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		radius = parseInt(target.value);
-		if (onChange) {
-			onChange({ categories: selectedCategories, radius });
-		}
-	}
-
-	// Initialize on mount
-	$effect(() => {
-		if (onChange) {
-			onChange({ categories: selectedCategories, radius });
-		}
-	});
 </script>
 
 <div class="space-y-4">

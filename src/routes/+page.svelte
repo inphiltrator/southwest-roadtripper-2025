@@ -10,32 +10,61 @@
 	} from '$lib/components';
 	import { useTripStore } from '$lib/stores/tripStore';
 	import { poiStore, discoveredPOIs, poiLoading } from '$lib/stores/poiStore';
-	import { routeStore, routeAlternatives, routeLoading, activeRoute } from '$lib/stores/routeStore';
+	import { EnhancedRoutingService } from '$lib/services/EnhancedRoutingService';
 	import type { Waypoint, POI, Route } from '$lib/types';
 
 	const tripStore = useTripStore();
+	const routingService = new EnhancedRoutingService();
 
-	// POI Discovery State
-	let selectedPOICategories = $state<POI['category'][]>([
-		'national_park',
-		'camping',
-		'dining',
-		'attraction'
-	]);
-	let poiRadius = $state(10000); // 10km radius
+	// State
+	let selectedPOICategories = $state<POI['category'][]>(['national_park', 'attraction']);
+	let searchRadius = $state(10000);
+	let routeAlternatives = $state<Route[]>([]);
+	let selectedRoute = $state<Route | null>(null);
+	let routeLoading = $state(false);
 
-	// Route state
-	let showRouteAlternatives = $state(false);
+	// Calculate routes when waypoints change
+	$effect(() => {
+		if (tripStore.trip.route.waypoints.length >= 2) {
+			calculateRoutes();
+		} else {
+			routeAlternatives = [];
+			selectedRoute = null;
+		}
+	});
 
-	// Load POIs around a location with multiple categories and radius
-	async function loadPOIsAroundLocation(lat: number, lng: number) {
-		await poiStore.discoverPOIs({ lat, lng }, poiRadius, selectedPOICategories);
+	async function calculateRoutes() {
+		routeLoading = true;
+		try {
+			const alternatives = await routingService.getRouteAlternatives(
+				tripStore.trip.route.waypoints,
+				3
+			);
+			routeAlternatives = alternatives;
+			selectedRoute = alternatives[0];
+		} catch (error) {
+			console.error('Route calculation failed:', error);
+		} finally {
+			routeLoading = false;
+		}
 	}
 
-	// Load POIs on component mount
-	$effect(() => {
-		loadPOIsAroundLocation(36.1699, -115.1398); // Las Vegas
-	});
+	async function handlePOISearch() {
+		const center = tripStore.trip.route.waypoints[0] || { lat: 36.1699, lng: -115.1398 };
+		await poiStore.discoverPOIs(
+			{ lat: center.lat, lng: center.lng },
+			searchRadius,
+			selectedPOICategories
+		);
+	}
+
+	function handlePOICategoryToggle(category: POI['category']) {
+		if (selectedPOICategories.includes(category)) {
+			selectedPOICategories = selectedPOICategories.filter(c => c !== category);
+		} else {
+			selectedPOICategories = [...selectedPOICategories, category];
+		}
+	}
 
 	function handleAddPOIAsWaypoint(poi: POI) {
 		const waypoint: Waypoint = {
@@ -61,29 +90,6 @@
 		};
 		return icons[category] || '📍';
 	}
-
-	// Handle POI filter changes
-	function handlePOIFilterChange(data: { categories: POI['category'][]; radius: number }) {
-		selectedPOICategories = data.categories;
-		poiRadius = data.radius;
-		loadPOIsAroundLocation(36.1699, -115.1398); // Re-load POIs with new filters
-	}
-
-	// Handle route alternative selection
-	function handleRouteSelect(route: Route) {
-		routeStore.selectAlternative(route);
-	}
-
-	// Load route alternatives when waypoints change
-	$effect(() => {
-		const waypoints = tripStore.trip.route.waypoints;
-		if (waypoints.length >= 2) {
-			routeStore.getAlternatives(waypoints, 3);
-			showRouteAlternatives = true;
-		} else {
-			showRouteAlternatives = false;
-		}
-	});
 </script>
 
 <div class="min-h-screen bg-southwest-sand text-gray-800">
@@ -94,28 +100,36 @@
 			<div class="lg:col-span-2">
 				<MapContainer />
 
-				<!-- POI Discovery Section -->
+				<!-- POI Results -->
 				<GlassCard class="mt-8 p-4">
-					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">Discover Southwest POIs</h3>
-
-					<!-- POI Filter Component -->
-					<div class="mb-4">
-						<POIFilter onChange={handlePOIFilterChange} />
-					</div>
-
+					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">Discovered Points of Interest</h3>
+					
 					{#if $poiLoading}
-						<div class="py-4 text-center text-gray-500">Loading POIs...</div>
+						<div class="py-8 text-center">
+							<svg class="animate-spin h-8 w-8 text-southwest-sunset mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							<p class="text-gray-500">Searching Southwest attractions...</p>
+						</div>
+					{:else if $discoveredPOIs.length === 0}
+						<p class="text-center text-gray-500 py-4">No POIs found. Try adjusting filters or search radius.</p>
 					{:else}
-						<ul class="h-64 space-y-2 overflow-y-auto">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
 							{#each $discoveredPOIs as poi (poi.id)}
-								<li
-									class="flex items-center rounded-lg bg-white/50 p-2 transition hover:bg-white/70"
-								>
-									<span class="mr-3 text-xl">{getCategoryIcon(poi.category)}</span>
-									<div class="flex-1">
-										<div class="font-medium text-gray-800">{poi.name}</div>
-										<div class="text-xs text-gray-500">
-											Rating: {poi.rating?.toFixed(1) || 'N/A'}
+								<div class="flex items-center justify-between rounded-lg bg-white/50 p-3 transition hover:bg-white/70">
+									<div class="flex items-start space-x-3">
+										<span class="text-2xl">{getCategoryIcon(poi.category)}</span>
+										<div>
+											<div class="font-medium text-gray-800">{poi.name}</div>
+											<div class="text-xs text-gray-500">
+												{#if poi.rating}
+													<span>★ {poi.rating}</span>
+												{/if}
+												{#if poi.description}
+													<span class="ml-2">{poi.description.slice(0, 50)}...</span>
+												{/if}
+											</div>
 										</div>
 									</div>
 									<GlassButton
@@ -123,27 +137,38 @@
 										size="sm"
 										onclick={() => handleAddPOIAsWaypoint(poi)}
 									>
-										+
+										Add to Route
 									</GlassButton>
-								</li>
+								</div>
 							{/each}
-						</ul>
+						</div>
 					{/if}
 				</GlassCard>
 			</div>
 
-			<div>
-				<!-- Route Alternatives Section -->
-				{#if showRouteAlternatives}
-					<div class="mb-8">
-						<RouteAlternatives
-							alternatives={$routeAlternatives}
-							selectedRouteId={$activeRoute?.id}
-							loading={$routeLoading}
-							onSelect={handleRouteSelect}
-						/>
-					</div>
+			<!-- Sidebar -->
+			<div class="space-y-6">
+				<!-- POI Filters -->
+				<POIFilter
+					selectedCategories={selectedPOICategories}
+					onCategoryToggle={handlePOICategoryToggle}
+					onApplyFilters={handlePOISearch}
+					radius={searchRadius}
+					onRadiusChange={(r) => searchRadius = r}
+					loading={$poiLoading}
+				/>
+
+				<!-- Route Alternatives -->
+				{#if tripStore.trip.route.waypoints.length >= 2}
+					<RouteAlternatives
+						routes={routeAlternatives}
+						selectedRoute={selectedRoute}
+						onSelectRoute={(route) => selectedRoute = route}
+						loading={routeLoading}
+					/>
 				{/if}
+
+				<!-- Waypoint Manager -->
 				<WaypointManager
 					waypoints={tripStore.trip.route.waypoints}
 					onRemove={(wp) => tripStore.removeWaypoint(wp.id)}
@@ -152,20 +177,30 @@
 				/>
 
 				<!-- Trip Summary -->
-				<GlassCard class="mt-8 p-4">
+				<GlassCard class="p-4">
 					<h3 class="mb-4 text-lg font-bold text-southwest-sage">Trip Summary</h3>
 					<div class="space-y-2 text-sm">
 						<div class="flex justify-between">
 							<span class="text-gray-600">Distance:</span>
-							<span class="font-medium">{tripStore.trip.route.distance} mi</span>
+							<span class="font-medium">
+								{selectedRoute ? selectedRoute.distance : tripStore.trip.route.distance} mi
+							</span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-gray-600">Duration:</span>
-							<span class="font-medium">{(tripStore.trip.route.duration / 60).toFixed(1)} hrs</span>
+							<span class="font-medium">
+								{selectedRoute 
+									? `${Math.floor(selectedRoute.duration / 60)}h ${selectedRoute.duration % 60}m`
+									: `${(tripStore.trip.route.duration / 60).toFixed(1)} hrs`}
+							</span>
 						</div>
 						<div class="flex justify-between">
-							<span class="text-gray-600">Est. Cost:</span>
-							<span class="font-bold text-southwest-canyon">${tripStore.trip.estimatedCost}</span>
+							<span class="text-gray-600">Est. Fuel Cost:</span>
+							<span class="font-bold text-southwest-canyon">
+								${selectedRoute 
+									? Math.round(selectedRoute.distance * 0.15) // $0.15/mile estimate
+									: tripStore.trip.estimatedCost}
+							</span>
 						</div>
 					</div>
 				</GlassCard>
