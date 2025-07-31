@@ -30,12 +30,12 @@ function getEnvVar(key: string, fallback: string = ''): string {
 export const env: EnvironmentConfig = {
 	// OpenRouteService API Key for routing
 	openRouteServiceApiKey: getEnvVar(
-		'ORS_API_KEY',
+		'VITE_ORS_API_KEY',
 		'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjczODIzZjRlMWM5YjRiOGFiNGZjNWE5MWRhYmFjMDQwIiwiaCI6Im11cm11cjY0In0='
 	),
 
 	// Overpass API URL for POI discovery
-	overpassApiUrl: getEnvVar('OVERPASS_API_URL', 'https://overpass.private.coffee/api/interpreter'),
+	overpassApiUrl: getEnvVar('VITE_OVERPASS_ENDPOINT', 'https://overpass.private.coffee/api/interpreter'),
 
 	// Environment flags
 	isDevelopment: getEnvVar('NODE_ENV', 'development') === 'development',
@@ -49,11 +49,11 @@ export function validateEnvironment(): { valid: boolean; missing: string[] } {
 	const missing: string[] = [];
 
 	if (!env.openRouteServiceApiKey || env.openRouteServiceApiKey === 'demo-key') {
-		missing.push('ORS_API_KEY (OpenRouteService API Key)');
+		missing.push('VITE_ORS_API_KEY (OpenRouteService API Key)');
 	}
 
 	if (!env.overpassApiUrl) {
-		missing.push('OVERPASS_API_URL (Overpass API URL)');
+		missing.push('VITE_OVERPASS_ENDPOINT (Overpass API URL)');
 	}
 
 	return {
