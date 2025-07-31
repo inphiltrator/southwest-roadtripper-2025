@@ -40,13 +40,15 @@
 	{:else}
 		<div class="space-y-3">
 			{#each alternatives as route, index (route.id)}
-				<div
-					class="cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md"
+				<button
+					type="button"
+					class="w-full cursor-pointer rounded-lg border-2 p-3 text-left transition-all hover:shadow-md focus:ring-2 focus:ring-southwest-sage/20 focus:outline-none"
 					class:border-southwest-sage={selectedRouteId === route.id}
 					class:bg-southwest-sage-light={selectedRouteId === route.id}
 					class:border-gray-200={selectedRouteId !== route.id}
 					class:bg-white={selectedRouteId !== route.id}
 					onclick={() => handleRouteSelect(route)}
+					aria-label="Select Route {index + 1}"
 				>
 					<div class="mb-2 flex items-center justify-between">
 						<div class="font-medium text-gray-800">
@@ -78,7 +80,7 @@
 							<span>Elevation data available</span>
 						</div>
 					{/if}
-				</div>
+				</button>
 			{/each}
 		</div>
 	{/if}

@@ -27,7 +27,6 @@ export class EnhancedRoutingService {
 			throw new Error('At least 2 waypoints are required for routing');
 		}
 
-
 		try {
 			return await this.makeRoutingRequest(waypoints);
 		} catch (error) {
@@ -104,7 +103,6 @@ export class EnhancedRoutingService {
 	 * Get route alternatives with Southwest-specific profiles
 	 */
 	async getRouteAlternatives(waypoints: Waypoint[], maxAlternatives = 3): Promise<Route[]> {
-
 		const profiles = ['driving-car', 'driving-hgv']; // Car and truck routes
 		const alternatives: Route[] = [];
 

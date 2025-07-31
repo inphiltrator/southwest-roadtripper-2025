@@ -17,7 +17,7 @@ interface EnvironmentConfig {
 function getEnvVar(key: string, fallback: string = ''): string {
 	if (browser) {
 		// Client-side: use public env vars only
-		return (window as any).__ENV__?.[key] || fallback;
+		return (window as unknown as Record<string, Record<string, string>>).__ENV__?.[key] || fallback;
 	} else {
 		// Server-side: use process.env
 		return process.env[key] || fallback;
@@ -35,7 +35,10 @@ export const env: EnvironmentConfig = {
 	),
 
 	// Overpass API URL for POI discovery
-	overpassApiUrl: getEnvVar('VITE_OVERPASS_ENDPOINT', 'https://overpass.private.coffee/api/interpreter'),
+	overpassApiUrl: getEnvVar(
+		'VITE_OVERPASS_ENDPOINT',
+		'https://overpass.private.coffee/api/interpreter'
+	),
 
 	// Environment flags
 	isDevelopment: getEnvVar('NODE_ENV', 'development') === 'development',

@@ -89,35 +89,36 @@ export class EnhancedPOIService {
 		radius: number,
 		categories: POI['category'][]
 	): string {
-		const queryParts = categories.map(category => {
-			switch(category) {
-				case 'national_park':
-					return `
+		const queryParts = categories
+			.map((category) => {
+				switch (category) {
+					case 'national_park':
+						return `
 						node["leisure"="park"]["protection_title"](around:${radius},${location.lat},${location.lng});
 						node["boundary"="national_park"](around:${radius},${location.lat},${location.lng});
 						node["leisure"="nature_reserve"]["name"~"National"](around:${radius},${location.lat},${location.lng});
 						way["leisure"="park"]["protection_title"](around:${radius},${location.lat},${location.lng});
 						way["boundary"="national_park"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'state_park':
-					return `
+
+					case 'state_park':
+						return `
 						node["leisure"="park"]["park_type"="state_park"](around:${radius},${location.lat},${location.lng});
 						node["leisure"="park"]["name"~"State Park"](around:${radius},${location.lat},${location.lng});
 						node["boundary"="protected_area"]["protect_class"="5"](around:${radius},${location.lat},${location.lng});
 						way["leisure"="park"]["park_type"="state_park"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'camping':
-					return `
+
+					case 'camping':
+						return `
 						node["tourism"="camp_site"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="caravan_site"](around:${radius},${location.lat},${location.lng});
 						node["amenity"="camping"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="wilderness_hut"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'dining':
-					return `
+
+					case 'dining':
+						return `
 						node["amenity"="restaurant"](around:${radius},${location.lat},${location.lng});
 						node["amenity"="cafe"](around:${radius},${location.lat},${location.lng});
 						node["amenity"="fast_food"](around:${radius},${location.lat},${location.lng});
@@ -125,9 +126,9 @@ export class EnhancedPOIService {
 						node["amenity"="bar"](around:${radius},${location.lat},${location.lng});
 						node["amenity"="pub"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'attraction':
-					return `
+
+					case 'attraction':
+						return `
 						node["tourism"="attraction"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="viewpoint"](around:${radius},${location.lat},${location.lng});
 						node["historic"](around:${radius},${location.lat},${location.lng});
@@ -136,9 +137,9 @@ export class EnhancedPOIService {
 						node["natural"="peak"](around:${radius},${location.lat},${location.lng});
 						way["tourism"="attraction"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'lodging':
-					return `
+
+					case 'lodging':
+						return `
 						node["tourism"="hotel"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="motel"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="guest_house"](around:${radius},${location.lat},${location.lng});
@@ -146,19 +147,21 @@ export class EnhancedPOIService {
 						node["tourism"="apartment"](around:${radius},${location.lat},${location.lng});
 						node["tourism"="resort"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				case 'fuel':
-					return `
+
+					case 'fuel':
+						return `
 						node["amenity"="fuel"](around:${radius},${location.lat},${location.lng});
 						node["shop"="gas"](around:${radius},${location.lat},${location.lng});
 						node["amenity"="charging_station"](around:${radius},${location.lat},${location.lng});
 					`;
-				
-				default:
-					return '';
-			}
-		}).filter(part => part.trim()).join('\n');
-		
+
+					default:
+						return '';
+				}
+			})
+			.filter((part) => part.trim())
+			.join('\n');
+
 		return `[out:json][timeout:25];
 (
 ${queryParts}
@@ -189,64 +192,74 @@ out skel qt;`;
 	 */
 	private mapOverpassCategory(tags: Record<string, string>): POI['category'] {
 		// National Parks
-		if (tags.boundary === 'national_park' || 
+		if (
+			tags.boundary === 'national_park' ||
 			(tags.leisure === 'park' && tags.protection_title) ||
-			(tags.leisure === 'nature_reserve' && tags.name?.includes('National'))) {
+			(tags.leisure === 'nature_reserve' && tags.name?.includes('National'))
+		) {
 			return 'national_park';
 		}
-		
+
 		// State Parks
-		if ((tags.leisure === 'park' && tags.park_type === 'state_park') ||
+		if (
+			(tags.leisure === 'park' && tags.park_type === 'state_park') ||
 			(tags.leisure === 'park' && tags.name?.includes('State Park')) ||
-			(tags.boundary === 'protected_area' && tags.protect_class === '5')) {
+			(tags.boundary === 'protected_area' && tags.protect_class === '5')
+		) {
 			return 'state_park';
 		}
-		
+
 		// Camping
-		if (tags.tourism === 'camp_site' || 
+		if (
+			tags.tourism === 'camp_site' ||
 			tags.tourism === 'caravan_site' ||
 			tags.amenity === 'camping' ||
-			tags.tourism === 'wilderness_hut') {
+			tags.tourism === 'wilderness_hut'
+		) {
 			return 'camping';
 		}
-		
+
 		// Dining
-		if (tags.amenity === 'restaurant' || 
+		if (
+			tags.amenity === 'restaurant' ||
 			tags.amenity === 'cafe' ||
 			tags.amenity === 'fast_food' ||
 			tags.amenity === 'food_court' ||
 			tags.amenity === 'bar' ||
-			tags.amenity === 'pub') {
+			tags.amenity === 'pub'
+		) {
 			return 'dining';
 		}
-		
+
 		// Attractions
-		if (tags.tourism === 'attraction' ||
+		if (
+			tags.tourism === 'attraction' ||
 			tags.tourism === 'viewpoint' ||
 			tags.tourism === 'museum' ||
 			tags.tourism === 'theme_park' ||
 			tags.historic ||
-			tags.natural === 'peak') {
+			tags.natural === 'peak'
+		) {
 			return 'attraction';
 		}
-		
+
 		// Lodging
-		if (tags.tourism === 'hotel' ||
+		if (
+			tags.tourism === 'hotel' ||
 			tags.tourism === 'motel' ||
 			tags.tourism === 'guest_house' ||
 			tags.tourism === 'hostel' ||
 			tags.tourism === 'apartment' ||
-			tags.tourism === 'resort') {
+			tags.tourism === 'resort'
+		) {
 			return 'lodging';
 		}
-		
+
 		// Fuel
-		if (tags.amenity === 'fuel' || 
-			tags.shop === 'gas' ||
-			tags.amenity === 'charging_station') {
+		if (tags.amenity === 'fuel' || tags.shop === 'gas' || tags.amenity === 'charging_station') {
 			return 'fuel';
 		}
-		
+
 		return 'attraction'; // Default fallback
 	}
 
