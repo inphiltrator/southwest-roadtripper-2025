@@ -60,7 +60,7 @@
 
 	function handlePOICategoryToggle(category: POI['category']) {
 		if (selectedPOICategories.includes(category)) {
-			selectedPOICategories = selectedPOICategories.filter(c => c !== category);
+			selectedPOICategories = selectedPOICategories.filter((c) => c !== category);
 		} else {
 			selectedPOICategories = [...selectedPOICategories, category];
 		}
@@ -102,22 +102,44 @@
 
 				<!-- POI Results -->
 				<GlassCard class="mt-8 p-4">
-					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">Discovered Points of Interest</h3>
-					
+					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">
+						Discovered Points of Interest
+					</h3>
+
 					{#if $poiLoading}
 						<div class="py-8 text-center">
-							<svg class="animate-spin h-8 w-8 text-southwest-sunset mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							<svg
+								class="mx-auto mb-2 h-8 w-8 animate-spin text-southwest-sunset"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
 							</svg>
 							<p class="text-gray-500">Searching Southwest attractions...</p>
 						</div>
 					{:else if $discoveredPOIs.length === 0}
-						<p class="text-center text-gray-500 py-4">No POIs found. Try adjusting filters or search radius.</p>
+						<p class="py-4 text-center text-gray-500">
+							No POIs found. Try adjusting filters or search radius.
+						</p>
 					{:else}
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+						<div class="grid max-h-96 grid-cols-1 gap-3 overflow-y-auto md:grid-cols-2">
 							{#each $discoveredPOIs as poi (poi.id)}
-								<div class="flex items-center justify-between rounded-lg bg-white/50 p-3 transition hover:bg-white/70">
+								<div
+									class="flex items-center justify-between rounded-lg bg-white/50 p-3 transition hover:bg-white/70"
+								>
 									<div class="flex items-start space-x-3">
 										<span class="text-2xl">{getCategoryIcon(poi.category)}</span>
 										<div>
@@ -154,7 +176,7 @@
 					onCategoryToggle={handlePOICategoryToggle}
 					onApplyFilters={handlePOISearch}
 					radius={searchRadius}
-					onRadiusChange={(r) => searchRadius = r}
+					onRadiusChange={(r) => (searchRadius = r)}
 					loading={$poiLoading}
 				/>
 
@@ -162,8 +184,8 @@
 				{#if tripStore.trip.route.waypoints.length >= 2}
 					<RouteAlternatives
 						routes={routeAlternatives}
-						selectedRoute={selectedRoute}
-						onSelectRoute={(route) => selectedRoute = route}
+						{selectedRoute}
+						onSelectRoute={(route) => (selectedRoute = route)}
 						loading={routeLoading}
 					/>
 				{/if}
@@ -189,7 +211,7 @@
 						<div class="flex justify-between">
 							<span class="text-gray-600">Duration:</span>
 							<span class="font-medium">
-								{selectedRoute 
+								{selectedRoute
 									? `${Math.floor(selectedRoute.duration / 60)}h ${selectedRoute.duration % 60}m`
 									: `${(tripStore.trip.route.duration / 60).toFixed(1)} hrs`}
 							</span>
@@ -197,7 +219,7 @@
 						<div class="flex justify-between">
 							<span class="text-gray-600">Est. Fuel Cost:</span>
 							<span class="font-bold text-southwest-canyon">
-								${selectedRoute 
+								${selectedRoute
 									? Math.round(selectedRoute.distance * 0.15) // $0.15/mile estimate
 									: tripStore.trip.estimatedCost}
 							</span>
