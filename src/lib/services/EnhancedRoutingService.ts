@@ -1,5 +1,6 @@
 import polyline from '@mapbox/polyline';
 import type { Waypoint, Route } from '../types';
+import { env } from '$lib/config/env';
 
 /**
  * Enhanced routing service using OpenRouteService API
@@ -13,9 +14,8 @@ export class EnhancedRoutingService {
 	private readonly maxRetries = 3;
 
 	constructor(apiKey?: string) {
-		// Support environment variable or explicit key
-		this.apiKey =
-			apiKey || (typeof process !== 'undefined' && process.env.ORS_API_KEY) || 'demo-key';
+		// Use environment config for API key
+		this.apiKey = apiKey || env.openRouteServiceApiKey || 'demo-key';
 		if (this.apiKey !== 'demo-key') {
 			console.log('🛣️ OpenRouteService configured with API key');
 		} else {

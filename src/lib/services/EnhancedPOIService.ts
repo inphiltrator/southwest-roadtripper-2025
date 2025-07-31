@@ -6,13 +6,14 @@ interface OverpassElement {
 }
 
 import type { LatLng, POI } from '../types';
+import { env } from '$lib/config/env';
 
 /**
  * Enhanced POI discovery service using Overpass API
  * Specialized for Southwest USA with robust error handling
  */
 export class EnhancedPOIService {
-	private readonly baseUrl = 'https://overpass.private.coffee/api/interpreter';
+	private readonly baseUrl = env.overpassApiUrl;
 	private readonly rateLimitDelay = 500; // Minimal delay to be respectful
 	private lastRequestTime = 0;
 	private readonly maxRetries = 3;
@@ -86,14 +87,33 @@ export class EnhancedPOIService {
 	private buildOverpassQuery(
 		location: LatLng,
 		radius: number,
-		_categories: POI['category'][]
+		categories: POI['category'][]
 	): string {
-		// Build a simple query for restaurants (as a basic test)
-		return `[out:json][timeout:25];
-(
-  node[amenity=restaurant](around:${radius},${location.lat},${location.lng});
-  node[amenity=fuel](around:${radius},${location.lat},${location.lng});
-);
+		// Build query using all categories
+		const categoryQueries = categories
+			.map((category) => {
+				switch (category) {
+					case 'national_park':
+						return `node[boundary=national_park](around:${radius},${location.lat},${location.lng});`;
+					case 'state_park':
+						return `node[park_type=state_park](around:${radius},${location.lat},${location.lng});`;
+					case 'camping':
+						return `node[tourism=camp_site](around:${radius},${location.lat},${location.lng});node[tourism=caravan_site](around:${radius},${location.lat},${location.lng});`;
+					case 'dining':
+						return `node[amenity=restaurant](around:${radius},${location.lat},${location.lng});node[amenity=cafe](around:${radius},${location.lat},${location.lng});node[amenity=fast_food](around:${radius},${location.lat},${location.lng});`;
+					case 'attraction':
+						return `node[tourism=attraction](around:${radius},${location.lat},${location.lng});node[tourism=viewpoint](around:${radius},${location.lat},${location.lng});node[tourism=historic](around:${radius},${location.lat},${location.lng});`;
+					case 'lodging':
+						return `node[tourism=hotel](around:${radius},${location.lat},${location.lng});node[tourism=motel](around:${radius},${location.lat},${location.lng});node[tourism=guest_house](around:${radius},${location.lat},${location.lng});`;
+					case 'fuel':
+						return `node[amenity=fuel](around:${radius},${location.lat},${location.lng});node[amenity=charging_station](around:${radius},${location.lat},${location.lng});`;
+					default:
+						return '';
+				}
+			})
+			.join('');
+
+		return `[out:json][timeout:25];(${categoryQueries});
 out body;`;
 	}
 

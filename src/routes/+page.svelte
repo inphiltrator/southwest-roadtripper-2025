@@ -4,24 +4,32 @@
 		MapContainer,
 		WaypointManager,
 		GlassCard,
-		GlassButton
+		GlassButton,
+		POIFilter,
+		RouteAlternatives
 	} from '$lib/components';
 	import { useTripStore } from '$lib/stores/tripStore';
 	import { poiStore, discoveredPOIs, poiLoading } from '$lib/stores/poiStore';
-	import type { Waypoint, POI } from '$lib/types';
+	import { routeStore, routeAlternatives, routeLoading, activeRoute } from '$lib/stores/routeStore';
+	import type { Waypoint, POI, Route } from '$lib/types';
 
 	const tripStore = useTripStore();
 
-	// Use reactive stores
-	let selectedPOICategory = $state<POI['category']>('national_park');
+	// POI Discovery State
+	let selectedPOICategories = $state<POI['category'][]>([
+		'national_park',
+		'camping',
+		'dining',
+		'attraction'
+	]);
+	let poiRadius = $state(10000); // 10km radius
 
-	// Load initial POIs around Las Vegas using the POI store
+	// Route state
+	let showRouteAlternatives = $state(false);
+
+	// Load POIs around a location with multiple categories and radius
 	async function loadPOIsAroundLocation(lat: number, lng: number) {
-		await poiStore.discoverPOIs(
-			{ lat, lng },
-			10000, // 10km radius for better coverage
-			[selectedPOICategory]
-		);
+		await poiStore.discoverPOIs({ lat, lng }, poiRadius, selectedPOICategories);
 	}
 
 	// Load POIs on component mount
@@ -54,10 +62,28 @@
 		return icons[category] || '📍';
 	}
 
-	async function handlePOICategoryChange(category: POI['category']) {
-		selectedPOICategory = category;
-		await loadPOIsAroundLocation(36.1699, -115.1398);
+	// Handle POI filter changes
+	function handlePOIFilterChange(data: { categories: POI['category'][]; radius: number }) {
+		selectedPOICategories = data.categories;
+		poiRadius = data.radius;
+		loadPOIsAroundLocation(36.1699, -115.1398); // Re-load POIs with new filters
 	}
+
+	// Handle route alternative selection
+	function handleRouteSelect(route: Route) {
+		routeStore.selectAlternative(route);
+	}
+
+	// Load route alternatives when waypoints change
+	$effect(() => {
+		const waypoints = tripStore.trip.route.waypoints;
+		if (waypoints.length >= 2) {
+			routeStore.getAlternatives(waypoints, 3);
+			showRouteAlternatives = true;
+		} else {
+			showRouteAlternatives = false;
+		}
+	});
 </script>
 
 <div class="min-h-screen bg-southwest-sand text-gray-800">
@@ -71,17 +97,10 @@
 				<!-- POI Discovery Section -->
 				<GlassCard class="mt-8 p-4">
 					<h3 class="mb-4 text-lg font-bold text-southwest-canyon">Discover Southwest POIs</h3>
-					<div class="mb-4 flex gap-2">
-						{#each ['national_park', 'camping', 'dining', 'attraction', 'lodging', 'fuel'] as POI['category'][] as category (category)}
-							<GlassButton
-								variant={selectedPOICategory === category ? 'primary' : 'secondary'}
-								size="sm"
-								onclick={() => handlePOICategoryChange(category)}
-							>
-								{getCategoryIcon(category)}
-								{category.replace('_', ' ')}
-							</GlassButton>
-						{/each}
+
+					<!-- POI Filter Component -->
+					<div class="mb-4">
+						<POIFilter onChange={handlePOIFilterChange} />
 					</div>
 
 					{#if $poiLoading}
@@ -95,7 +114,9 @@
 									<span class="mr-3 text-xl">{getCategoryIcon(poi.category)}</span>
 									<div class="flex-1">
 										<div class="font-medium text-gray-800">{poi.name}</div>
-										<div class="text-xs text-gray-500">Rating: {poi.rating || 'N/A'}</div>
+										<div class="text-xs text-gray-500">
+											Rating: {poi.rating?.toFixed(1) || 'N/A'}
+										</div>
 									</div>
 									<GlassButton
 										variant="accent"
@@ -112,6 +133,17 @@
 			</div>
 
 			<div>
+				<!-- Route Alternatives Section -->
+				{#if showRouteAlternatives}
+					<div class="mb-8">
+						<RouteAlternatives
+							alternatives={$routeAlternatives}
+							selectedRouteId={$activeRoute?.id}
+							loading={$routeLoading}
+							onSelect={handleRouteSelect}
+						/>
+					</div>
+				{/if}
 				<WaypointManager
 					waypoints={tripStore.trip.route.waypoints}
 					onRemove={(wp) => tripStore.removeWaypoint(wp.id)}
