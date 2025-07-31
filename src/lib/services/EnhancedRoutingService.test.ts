@@ -68,8 +68,8 @@ describe('EnhancedRoutingService', () => {
 
 	describe('calculateRoute', () => {
 		const testWaypoints: Waypoint[] = [
-			{ id: '1', name: 'Start', lat: 36.1699, lng: -115.1398, category: 'attraction' },
-			{ id: '2', name: 'End', lat: 36.2048, lng: -115.264, category: 'attraction' }
+			{ id: '1', name: 'Start', lat: 36.1699, lng: -115.1398 },
+			{ id: '2', name: 'End', lat: 36.2048, lng: -115.264 }
 		];
 
 		it('should throw error for insufficient waypoints', async () => {

@@ -17,7 +17,7 @@ interface EnvironmentConfig {
 function getEnvVar(key: string, fallback: string = ''): string {
 	if (browser) {
 		// Client-side: use public env vars only
-		return ((window as Record<string, unknown>).__ENV__?.[key] as string) || fallback;
+		return (window as unknown as Record<string, Record<string, string>>).__ENV__?.[key] || fallback;
 	} else {
 		// Server-side: use process.env
 		return process.env[key] || fallback;

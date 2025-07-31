@@ -183,9 +183,9 @@
 				<!-- Route Alternatives -->
 				{#if tripStore.trip.route.waypoints.length >= 2}
 					<RouteAlternatives
-						routes={routeAlternatives}
-						{selectedRoute}
-						onSelectRoute={(route) => (selectedRoute = route)}
+						alternatives={routeAlternatives}
+						selectedRouteId={selectedRoute?.id}
+						onSelect={(route: Route) => (selectedRoute = route)}
 						loading={routeLoading}
 					/>
 				{/if}
