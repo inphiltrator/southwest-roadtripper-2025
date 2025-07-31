@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 2004,
+    "message": "Request parameters exceed a service limit"
+  },
+  "info": {
+    "engine": {
+      "version": "6.8.1",
+      "build_date": "2021-07-05T10:56:24Z"
+    },
+    "timestamp": 1640995200000
+  }
+}
